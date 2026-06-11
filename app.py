@@ -609,424 +609,182 @@ def run_eval(pairs_df):
 # ══════════════════════════════════════════════════════════════════════════════
 
 CSS = """
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* ══ OVERRIDE GRADIO CSS VARIABLES — kills light/dark toggle effect ══ */
-:root,
-.light, .dark,
-[data-theme="light"], [data-theme="dark"],
-[class*="theme"] {
-    --color-accent: #00ff9c !important;
-    --color-accent-soft: #00ff9c20 !important;
-    --background-fill-primary: #0a0a0a !important;
-    --background-fill-secondary: #0d1117 !important;
-    --background-fill-tertiary: #111827 !important;
-    --border-color-primary: #1e293b !important;
-    --border-color-accent: #00ff9c40 !important;
-    --color-text-body: #e2e8f0 !important;
-    --color-text-label: #475569 !important;
-    --color-text-subdued: #64748b !important;
-    --button-primary-background-fill: #00ff9c !important;
-    --button-primary-text-color: #0a0a0a !important;
-    --button-secondary-background-fill: #0d1117 !important;
-    --button-secondary-text-color: #64748b !important;
-    --input-background-fill: #0a0a0a !important;
-    --input-border-color: #1e293b !important;
-    --block-background-fill: #0d1117 !important;
-    --block-border-color: #1e293b !important;
-    --block-label-background-fill: #0d1117 !important;
-    --chatbot-background: #0a0a0a !important;
-    --panel-background-fill: #0d1117 !important;
-    --table-row-focus: #1e293b !important;
-    --checkbox-background-color: #0a0a0a !important;
-    --slider-color: #00ff9c !important;
-    --loader-color: #00ff9c !important;
-    --shadow-drop: none !important;
-    --shadow-spread: none !important;
-    --radius-sm: 4px !important;
-    --radius-md: 6px !important;
-    --radius-lg: 8px !important;
+/* ═══ KEYFRAME ANIMATIONS ═══ */
+@keyframes float-3d {
+    0%,100%{transform:translateY(0) rotateX(0deg)}
+    50%{transform:translateY(-8px) rotateX(1.5deg)}
 }
-
-/* ── Base — full width, no shifts ── */
-*, *::before, *::after { box-sizing: border-box; }
-
-html, body {
-    background: #0a0a0a !important;
-    color: #e2e8f0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    min-height: 100vh !important;
-    width: 100% !important;
+@keyframes pulse-neon {
+    0%,100%{box-shadow:0 0 5px #00ff9c10,0 0 20px #00ff9c05;border-color:#00ff9c20}
+    50%{box-shadow:0 0 15px #00ff9c25,0 0 40px #00ff9c10,0 0 60px #00ff9c05;border-color:#00ff9c40}
+}
+@keyframes glitch {
+    0%,88%,100%{text-shadow:0 0 20px #00ff9c40,0 0 40px #00ff9c15;transform:translate(0)}
+    90%{text-shadow:-3px 0 #ff006e,3px 0 #00f0ff;transform:translate(-2px,1px)}
+    93%{text-shadow:3px 0 #ff006e,-3px 0 #00f0ff;transform:translate(2px,-1px)}
+    96%{text-shadow:-1px 0 #ff006e,1px 0 #00f0ff;transform:translate(0)}
+}
+@keyframes fadeInUp {
+    from{opacity:0;transform:translateY(25px) scale(0.97)}
+    to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes shimmer {
+    0%{background-position:-200% center}
+    100%{background-position:200% center}
+}
+@keyframes scanLine {
+    0%{top:-10%}100%{top:110%}
+}
+@keyframes breathe {
+    0%,100%{opacity:0.3;transform:scale(1)}
+    50%{opacity:0.7;transform:scale(1.08)}
+}
+@keyframes borderPulse {
+    0%,100%{border-color:#00ff9c15}
+    50%{border-color:#00ff9c45}
+}
+@keyframes pill-shimmer {
+    0%{background-position:-100% 0}100%{background-position:200% 0}
+}
+@keyframes rotate-hue {
+    0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}
+}
+@keyframes slideInRight {
+    from{opacity:0;transform:translateX(15px)}
+    to{opacity:1;transform:translateX(0)}
 }
 
-/* CRITICAL: lock container to full width — no tab-triggered resizing */
-.gradio-container,
-.gradio-container > div,
-.main,
-.wrap,
-.app {
-    background: #0a0a0a !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
+/* ══ OVERRIDE GRADIO CSS VARIABLES ══ */
+:root,.light,.dark,[data-theme="light"],[data-theme="dark"],[class*="theme"] {
+    --color-accent:#00ff9c!important;--color-accent-soft:#00ff9c20!important;
+    --background-fill-primary:#050508!important;--background-fill-secondary:#0a0e1a!important;
+    --background-fill-tertiary:#111827!important;--border-color-primary:#1a1f35!important;
+    --border-color-accent:#00ff9c40!important;--color-text-body:#e2e8f0!important;
+    --color-text-label:#475569!important;--color-text-subdued:#64748b!important;
+    --button-primary-background-fill:#00ff9c!important;--button-primary-text-color:#050508!important;
+    --button-secondary-background-fill:#0a0e1a!important;--button-secondary-text-color:#64748b!important;
+    --input-background-fill:#050508!important;--input-border-color:#1a1f35!important;
+    --block-background-fill:#0a0e1a!important;--block-border-color:#1a1f35!important;
+    --block-label-background-fill:#0a0e1a!important;--chatbot-background:#050508!important;
+    --panel-background-fill:#0a0e1a!important;--table-row-focus:#1a1f35!important;
+    --checkbox-background-color:#050508!important;--slider-color:#00ff9c!important;
+    --loader-color:#00ff9c!important;--shadow-drop:none!important;--shadow-spread:none!important;
+    --radius-sm:6px!important;--radius-md:10px!important;--radius-lg:14px!important;
 }
 
-/* All tab panels same fixed width */
-.tabitem, .tab-content, [role="tabpanel"] {
-    width: 100% !important;
-    min-width: 100% !important;
-    max-width: 100% !important;
-    background: #0a0a0a !important;
-}
+/* ══ Base ══ */
+*,*::before,*::after{box-sizing:border-box}
+html,body{background:#050508!important;color:#e2e8f0!important;margin:0!important;padding:0!important;min-height:100vh!important;width:100%!important;overflow-x:hidden!important}
+.gradio-container,.gradio-container>div,.main,.wrap,.app{background:#050508!important;width:100%!important;max-width:100%!important;min-width:100%!important;margin:0!important;padding:0!important}
+.tabitem,.tab-content,[role="tabpanel"]{width:100%!important;min-width:100%!important;max-width:100%!important;background:#050508!important;animation:fadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) both!important}
+.tabitem>.gap,.tabitem>div>.gap{padding:20px 28px!important}
 
-/* Inner content padding */
-.tabitem > .gap,
-.tabitem > div > .gap {
-    padding: 16px 24px !important;
-}
+/* ══ Header — 3D floating, glitch, scan line ══ */
+.cw-header{position:relative!important;background:linear-gradient(160deg,#050508 0%,#0a1628 40%,#100a22 70%,#050508 100%)!important;border-bottom:1px solid #00ff9c25!important;padding:36px 40px 28px!important;overflow:hidden!important;animation:fadeInUp 0.8s cubic-bezier(0.16,1,0.3,1) both!important}
+.cw-header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#00ff9c 50%,transparent);opacity:0.5;animation:scanLine 4s linear infinite;pointer-events:none;z-index:2}
+.cw-header::after{content:'';position:absolute;top:-40%;right:-5%;width:350px;height:350px;background:radial-gradient(circle,#00ff9c08 0%,transparent 70%);border-radius:50%;animation:breathe 6s ease-in-out infinite;pointer-events:none}
+.cw-logo{font-size:2rem!important;font-weight:700!important;color:#00ff9c!important;font-family:'JetBrains Mono',monospace!important;letter-spacing:-0.5px!important;animation:glitch 8s ease-in-out infinite,float-3d 6s ease-in-out infinite!important;display:inline-block!important;position:relative;z-index:1;text-shadow:0 0 20px #00ff9c40,0 0 40px #00ff9c15}
+.cw-sub{color:#475569!important;font-size:0.85rem!important;margin-top:6px!important;font-family:'Inter',sans-serif!important;letter-spacing:0.02em!important;position:relative;z-index:1}
+.cw-pill{display:inline-block!important;background:linear-gradient(90deg,#00ff9c08,#00ff9c18,#00ff9c08)!important;background-size:200% 100%!important;border:1px solid #00ff9c25!important;color:#00ff9c90!important;font-size:0.7rem!important;padding:3px 12px!important;border-radius:99px!important;margin:10px 5px 0 0!important;font-family:'JetBrains Mono',monospace!important;animation:pill-shimmer 3s ease-in-out infinite!important;transition:all 0.3s cubic-bezier(0.16,1,0.3,1)!important;backdrop-filter:blur(8px)!important;position:relative;z-index:1}
+.cw-pill:hover{border-color:#00ff9c!important;color:#00ff9c!important;box-shadow:0 0 15px #00ff9c20!important;transform:translateY(-2px)!important}
 
-/* ── Header ── */
-.cw-header {
-    background: linear-gradient(135deg, #0a0a0a 0%, #0f172a 100%) !important;
-    border-bottom: 1px solid #00ff9c20 !important;
-    padding: 28px 36px 20px !important;
-}
-.cw-logo {
-    font-size: 1.7rem !important;
-    font-weight: 700 !important;
-    color: #00ff9c !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    letter-spacing: -0.5px !important;
-    text-shadow: 0 0 24px #00ff9c33 !important;
-}
-.cw-sub {
-    color: #475569 !important;
-    font-size: 0.82rem !important;
-    margin-top: 4px !important;
-    font-family: 'Inter', sans-serif !important;
-}
-.cw-pill {
-    display: inline-block !important;
-    background: #00ff9c0d !important;
-    border: 1px solid #00ff9c25 !important;
-    color: #00ff9c !important;
-    font-size: 0.68rem !important;
-    padding: 2px 9px !important;
-    border-radius: 99px !important;
-    margin: 8px 4px 0 0 !important;
-    font-family: 'JetBrains Mono', monospace !important;
-}
+/* ══ Status bar — glassmorphism + pulse ══ */
+.cw-statusbar{background:rgba(10,14,26,0.7)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;border:1px solid #1a1f35!important;border-radius:10px!important;padding:9px 18px!important;font-size:0.76rem!important;font-family:'JetBrains Mono',monospace!important;color:#475569!important;margin:10px 24px!important;animation:fadeInUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.2s both,pulse-neon 4s ease-in-out infinite!important}
 
-/* ── Status bar ── */
-.cw-statusbar {
-    background: #0f172a !important;
-    border: 1px solid #1e293b !important;
-    border-radius: 6px !important;
-    padding: 7px 16px !important;
-    font-size: 0.75rem !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    color: #475569 !important;
-    margin: 8px 0 !important;
-}
+/* ══ Tabs — glow underline ══ */
+.tabs>.tab-nav,div.tab-nav{background:#050508!important;border-bottom:1px solid #1a1f35!important;padding:0 12px!important}
+.tab-nav>button,button.selected{background:transparent!important;color:#475569!important;font-family:'JetBrains Mono',monospace!important;font-size:0.82rem!important;padding:12px 20px!important;border:none!important;border-bottom:2px solid transparent!important;border-radius:0!important;transition:all 0.3s cubic-bezier(0.16,1,0.3,1)!important;margin:0!important}
+.tab-nav>button.selected,button[aria-selected="true"]{color:#00ff9c!important;border-bottom:2px solid #00ff9c!important;background:linear-gradient(to top,#00ff9c08,transparent)!important;text-shadow:0 0 15px #00ff9c30!important}
+.tab-nav>button:hover{color:#94a3b8!important;background:#ffffff05!important;transform:translateY(-1px)!important}
 
-/* ── Tabs ── */
-.tabs > .tab-nav,
-div.tab-nav {
-    background: #0a0a0a !important;
-    border-bottom: 1px solid #1e293b !important;
-    padding: 0 8px !important;
-}
-.tab-nav > button,
-button.selected {
-    background: transparent !important;
-    color: #475569 !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    font-size: 0.8rem !important;
-    padding: 10px 18px !important;
-    border: none !important;
-    border-bottom: 2px solid transparent !important;
-    border-radius: 0 !important;
-    transition: color 0.15s, border-color 0.15s !important;
-    margin: 0 !important;
-}
-.tab-nav > button.selected,
-button[aria-selected="true"] {
-    color: #00ff9c !important;
-    border-bottom: 2px solid #00ff9c !important;
-    background: #00ff9c08 !important;
-}
-.tab-nav > button:hover {
-    color: #94a3b8 !important;
-    background: #ffffff05 !important;
-}
+/* ══ Panels — glassmorphism ══ */
+.gr-panel,.gr-box,.block,.panel,div.form,fieldset,.gr-form,.gap,.contain{background:rgba(10,14,26,0.7)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;border:1px solid #1a1f35!important;border-radius:12px!important;transition:all 0.3s cubic-bezier(0.16,1,0.3,1)!important}
 
-/* ── Panels / blocks ── */
-.gr-panel,
-.gr-box,
-.block,
-.panel,
-div.form,
-fieldset,
-.gr-form,
-.gap,
-.contain {
-    background: #0d1117 !important;
-    border-color: #1e293b !important;
-    border-radius: 8px !important;
-}
+/* ══ Inputs — animated neon focus ══ */
+input[type="text"],input[type="email"],input[type="password"],textarea,.gr-textbox textarea,.gr-textbox input,.scroll-hide{background:#050508!important;border:1px solid #1a1f35!important;color:#e2e8f0!important;font-family:'JetBrains Mono',monospace!important;font-size:0.85rem!important;border-radius:8px!important;padding:11px 15px!important;outline:none!important;transition:all 0.3s cubic-bezier(0.16,1,0.3,1)!important}
+input:focus,textarea:focus{border-color:#00ff9c50!important;box-shadow:0 0 0 3px #00ff9c10,0 0 20px #00ff9c08!important}
+::placeholder{color:#334155!important}
 
-/* ── Inputs ── */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-textarea,
-.gr-textbox textarea,
-.gr-textbox input,
-.scroll-hide {
-    background: #0a0a0a !important;
-    border: 1px solid #1e293b !important;
-    color: #e2e8f0 !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    font-size: 0.85rem !important;
-    border-radius: 6px !important;
-    padding: 10px 14px !important;
-    outline: none !important;
-    transition: border-color 0.15s !important;
-}
-input:focus, textarea:focus {
-    border-color: #00ff9c40 !important;
-    box-shadow: 0 0 0 2px #00ff9c10 !important;
-}
-::placeholder {
-    color: #334155 !important;
-}
+/* ══ Primary button — 3D hover + neon glow ══ */
+button.primary,.gr-button-primary,button[variant="primary"],.primary{background:linear-gradient(135deg,#00ff9c,#00e68a)!important;color:#050508!important;font-family:'JetBrains Mono',monospace!important;font-weight:700!important;font-size:0.85rem!important;border:none!important;border-radius:8px!important;padding:11px 22px!important;cursor:pointer!important;transition:all 0.3s cubic-bezier(0.16,1,0.3,1)!important;letter-spacing:0.02em!important;box-shadow:0 2px 10px #00ff9c20!important;position:relative!important;overflow:hidden!important}
+button.primary:hover,.gr-button-primary:hover{background:linear-gradient(135deg,#00ffab,#00ff9c)!important;box-shadow:0 4px 25px #00ff9c35,0 0 60px #00ff9c15!important;transform:translateY(-2px) scale(1.02)!important}
+button.primary:active{transform:translateY(0) scale(0.98)!important}
 
-/* ── Primary button (Clone & Ingest, Ask, etc) ── */
-button.primary,
-.gr-button-primary,
-button[variant="primary"],
-.primary {
-    background: #00ff9c !important;
-    color: #0a0a0a !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    font-weight: 700 !important;
-    font-size: 0.85rem !important;
-    border: none !important;
-    border-radius: 6px !important;
-    padding: 10px 20px !important;
-    cursor: pointer !important;
-    transition: all 0.15s !important;
-    letter-spacing: 0.02em !important;
-}
-button.primary:hover,
-.gr-button-primary:hover {
-    background: #00e58a !important;
-    box-shadow: 0 0 18px #00ff9c30 !important;
-    transform: translateY(-1px) !important;
-}
+/* ══ Secondary button — glass effect ══ */
+button.secondary,.gr-button-secondary,button[variant="secondary"],.secondary{background:rgba(10,14,26,0.8)!important;color:#64748b!important;border:1px solid #1a1f35!important;font-family:'JetBrains Mono',monospace!important;font-size:0.82rem!important;border-radius:8px!important;padding:10px 18px!important;cursor:pointer!important;transition:all 0.3s cubic-bezier(0.16,1,0.3,1)!important;backdrop-filter:blur(8px)!important}
+button.secondary:hover{background:#1a1f35!important;color:#e2e8f0!important;border-color:#00ff9c30!important;transform:translateY(-1px)!important;box-shadow:0 4px 15px rgba(0,0,0,0.3)!important}
 
-/* ── Secondary button ── */
-button.secondary,
-.gr-button-secondary,
-button[variant="secondary"],
-.secondary {
-    background: #0d1117 !important;
-    color: #64748b !important;
-    border: 1px solid #1e293b !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    font-size: 0.82rem !important;
-    border-radius: 6px !important;
-    padding: 9px 16px !important;
-    cursor: pointer !important;
-    transition: all 0.15s !important;
-}
-button.secondary:hover {
-    background: #1e293b !important;
-    color: #e2e8f0 !important;
-}
+/* ══ Quick-action buttons — slide-in + neon hover ══ */
+.quick-btn button,button.quick-btn{background:rgba(10,14,26,0.6)!important;border:1px solid #1a1f35!important;color:#475569!important;font-size:0.77rem!important;text-align:left!important;padding:9px 13px!important;border-radius:8px!important;font-family:'JetBrains Mono',monospace!important;width:100%!important;margin:3px 0!important;transition:all 0.3s cubic-bezier(0.16,1,0.3,1)!important;cursor:pointer!important;backdrop-filter:blur(6px)!important;position:relative!important;overflow:hidden!important}
+.quick-btn button::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,#00ff9c08,transparent);transition:left 0.5s!important}
+.quick-btn button:hover::before{left:100%}
+.quick-btn button:hover{border-color:#00ff9c35!important;color:#00ff9c!important;background:rgba(0,255,156,0.05)!important;transform:translateX(4px)!important;box-shadow:0 0 15px #00ff9c08!important}
 
-/* ── Quick-action sidebar buttons ── */
-.quick-btn button,
-button.quick-btn {
-    background: #0d1117 !important;
-    border: 1px solid #1e293b !important;
-    color: #475569 !important;
-    font-size: 0.77rem !important;
-    text-align: left !important;
-    padding: 8px 12px !important;
-    border-radius: 5px !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    width: 100% !important;
-    margin: 3px 0 !important;
-    transition: all 0.12s !important;
-    cursor: pointer !important;
-}
-.quick-btn button:hover {
-    border-color: #00ff9c30 !important;
-    color: #00ff9c !important;
-    background: #00ff9c08 !important;
-}
+/* ══ Review focus buttons ══ */
+.review-focus button{background:rgba(10,14,26,0.6)!important;border:1px solid #1a1f35!important;color:#64748b!important;font-family:'JetBrains Mono',monospace!important;font-size:0.8rem!important;padding:9px 15px!important;border-radius:8px!important;margin:4px!important;cursor:pointer!important;transition:all 0.3s cubic-bezier(0.16,1,0.3,1)!important}
+.review-focus button:hover,.review-focus button.selected{background:rgba(0,255,156,0.08)!important;border-color:#00ff9c40!important;color:#00ff9c!important;box-shadow:0 0 15px #00ff9c10!important;transform:translateY(-1px)!important}
 
-/* ── Review focus buttons ── */
-.review-focus button {
-    background: #0d1117 !important;
-    border: 1px solid #1e293b !important;
-    color: #64748b !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    font-size: 0.8rem !important;
-    padding: 8px 14px !important;
-    border-radius: 5px !important;
-    margin: 4px !important;
-    cursor: pointer !important;
-    transition: all 0.12s !important;
-}
-.review-focus button:hover,
-.review-focus button.selected {
-    background: #00ff9c12 !important;
-    border-color: #00ff9c40 !important;
-    color: #00ff9c !important;
-}
+/* ══ Chatbot — glass bubbles ══ */
+.gr-chatbot,.chatbot,[class*="chatbot"]{background:#050508!important;border:1px solid #1a1f35!important;border-radius:12px!important}
+.message-wrap .message.user>div,[class*="user"]>[class*="message"]{background:linear-gradient(135deg,#0f2444,#0a1e3d)!important;border:1px solid #1e3a5f80!important;border-radius:12px 12px 3px 12px!important;color:#93c5fd!important;font-family:'Inter',sans-serif!important;box-shadow:0 2px 10px rgba(30,58,95,0.2)!important}
+.message-wrap .message.bot>div,[class*="bot"]>[class*="message"]{background:rgba(10,14,26,0.8)!important;border:1px solid #1a1f35!important;border-radius:3px 12px 12px 12px!important;color:#e2e8f0!important;font-family:'Inter',sans-serif!important;backdrop-filter:blur(8px)!important;box-shadow:0 2px 10px rgba(0,0,0,0.2)!important}
 
-/* ── Chatbot ── */
-.gr-chatbot,
-.chatbot,
-[class*="chatbot"] {
-    background: #0a0a0a !important;
-    border: 1px solid #1e293b !important;
-    border-radius: 8px !important;
-}
-.message-wrap .message.user > div,
-[class*="user"] > [class*="message"] {
-    background: #0f2444 !important;
-    border: 1px solid #1e3a5f !important;
-    border-radius: 10px 10px 2px 10px !important;
-    color: #93c5fd !important;
-    font-family: 'Inter', sans-serif !important;
-}
-.message-wrap .message.bot > div,
-[class*="bot"] > [class*="message"] {
-    background: #0d1117 !important;
-    border: 1px solid #1e293b !important;
-    border-radius: 2px 10px 10px 10px !important;
-    color: #e2e8f0 !important;
-    font-family: 'Inter', sans-serif !important;
-}
+/* ══ Code blocks — neon glow ══ */
+.message pre,.prose pre{background:#050508!important;border:1px solid #1a1f35!important;border-radius:8px!important;padding:14px!important;box-shadow:inset 0 0 20px rgba(0,255,156,0.03)!important}
+.message code,.prose code{background:#1a1f35!important;color:#00ff9c!important;border-radius:4px!important;padding:2px 6px!important;font-size:0.82em!important;font-family:'JetBrains Mono',monospace!important;text-shadow:0 0 8px #00ff9c20!important}
 
-/* ── Code blocks inside chat ── */
-.message pre, .prose pre {
-    background: #0a0a0a !important;
-    border: 1px solid #1e293b !important;
-    border-radius: 6px !important;
-    padding: 12px !important;
-}
-.message code, .prose code {
-    background: #1e293b !important;
-    color: #00ff9c !important;
-    border-radius: 3px !important;
-    padding: 1px 5px !important;
-    font-size: 0.82em !important;
-    font-family: 'JetBrains Mono', monospace !important;
-}
+/* ══ Markdown ══ */
+.gr-markdown,.prose,[class*="markdown"]{color:#94a3b8!important;font-family:'Inter',sans-serif!important;line-height:1.7!important}
+.gr-markdown h1,.gr-markdown h2,.gr-markdown h3,.prose h1,.prose h2,.prose h3{color:#00ff9c!important;font-family:'JetBrains Mono',monospace!important;font-weight:600!important;text-shadow:0 0 12px #00ff9c20!important}
+.gr-markdown a{color:#38bdf8!important;text-shadow:0 0 8px #38bdf820!important}
+.gr-markdown code,.prose code{background:#1a1f35!important;color:#00ff9c!important;border-radius:4px!important;padding:2px 6px!important;font-family:'JetBrains Mono',monospace!important}
+.gr-markdown table{border-collapse:collapse!important;width:100%!important}
+.gr-markdown th{background:#0a0e1a!important;color:#00ff9c!important;border:1px solid #1a1f35!important;padding:9px 13px!important;font-family:'JetBrains Mono',monospace!important}
+.gr-markdown td{border:1px solid #1a1f35!important;padding:8px 13px!important;color:#94a3b8!important}
 
-/* ── Markdown ── */
-.gr-markdown, .prose, [class*="markdown"] {
-    color: #94a3b8 !important;
-    font-family: 'Inter', sans-serif !important;
-    line-height: 1.65 !important;
-}
-.gr-markdown h1, .gr-markdown h2, .gr-markdown h3,
-.prose h1, .prose h2, .prose h3 {
-    color: #00ff9c !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    font-weight: 600 !important;
-}
-.gr-markdown a { color: #38bdf8 !important; }
-.gr-markdown code, .prose code {
-    background: #1e293b !important;
-    color: #00ff9c !important;
-    border-radius: 3px !important;
-    padding: 1px 5px !important;
-    font-family: 'JetBrains Mono', monospace !important;
-}
-.gr-markdown table { border-collapse: collapse !important; width: 100% !important; }
-.gr-markdown th {
-    background: #0d1117 !important;
-    color: #00ff9c !important;
-    border: 1px solid #1e293b !important;
-    padding: 8px 12px !important;
-    font-family: 'JetBrains Mono', monospace !important;
-}
-.gr-markdown td {
-    border: 1px solid #1e293b !important;
-    padding: 7px 12px !important;
-    color: #94a3b8 !important;
-}
+/* ══ Labels ══ */
+label,.gr-label,span.svelte-1gfkn6j{color:#475569!important;font-size:0.75rem!important;font-family:'JetBrains Mono',monospace!important;text-transform:uppercase!important;letter-spacing:0.06em!important}
 
-/* ── Labels ── */
-label, .gr-label, span.svelte-1gfkn6j {
-    color: #475569 !important;
-    font-size: 0.75rem !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.06em !important;
-}
+/* ══ Dataframe ══ */
+table{background:#050508!important}
+th{background:#0a0e1a!important;color:#00ff9c!important;border-color:#1a1f35!important}
+td{color:#94a3b8!important;border-color:#1a1f35!important;font-family:'JetBrains Mono',monospace!important;font-size:0.8rem!important}
 
-/* ── Dataframe ── */
-table { background: #0a0a0a !important; }
-th { background: #0d1117 !important; color: #00ff9c !important; border-color: #1e293b !important; }
-td { color: #94a3b8 !important; border-color: #1e293b !important; font-family: 'JetBrains Mono', monospace !important; font-size: 0.8rem !important; }
+/* ══ Footer ══ */
+footer,.footer,[class*="footer"]{background:#050508!important;border-top:1px solid #1a1f35!important;color:#1a1f35!important}
+footer a,footer svg{opacity:0.15!important}
 
-/* ── Footer / Gradio branding ── */
-footer, .footer, [class*="footer"] {
-    background: #0a0a0a !important;
-    border-top: 1px solid #1e293b !important;
-    color: #1e293b !important;
-}
-footer a, footer svg { opacity: 0.15 !important; }
+/* ══ Scrollbars — neon ══ */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#050508}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#1a1f35,#00ff9c30);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#1a1f35,#00ff9c60)}
 
-/* ── Scrollbars ── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: #0a0a0a; }
-::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #334155; }
+/* ══ Radio/Checkbox ══ */
+input[type="radio"],input[type="checkbox"]{accent-color:#00ff9c!important}
 
-/* ── Radio/Checkbox ── */
-input[type="radio"], input[type="checkbox"] {
-    accent-color: #00ff9c !important;
-}
+/* ══ Code output ══ */
+.gr-code,.code-wrap,[class*="code"]{background:#050508!important;border:1px solid #1a1f35!important;border-radius:8px!important;color:#e2e8f0!important;font-family:'JetBrains Mono',monospace!important}
 
-/* ── Code output ── */
-.gr-code, .code-wrap, [class*="code"] {
-    background: #0a0a0a !important;
-    border: 1px solid #1e293b !important;
-    border-radius: 6px !important;
-    color: #e2e8f0 !important;
-    font-family: 'JetBrains Mono', monospace !important;
-}
+/* ══ Dropdown ══ */
+select,.gr-dropdown select,ul.options{background:#050508!important;border:1px solid #1a1f35!important;color:#e2e8f0!important;border-radius:8px!important;font-family:'JetBrains Mono',monospace!important}
+ul.options li:hover{background:#1a1f35!important}
 
-/* ── Dropdown ── */
-select, .gr-dropdown select, ul.options {
-    background: #0a0a0a !important;
-    border: 1px solid #1e293b !important;
-    color: #e2e8f0 !important;
-    border-radius: 6px !important;
-    font-family: 'JetBrains Mono', monospace !important;
-}
-ul.options li:hover { background: #1e293b !important; }
+/* ══ Progress bar — animated ══ */
+.progress-bar{background:linear-gradient(90deg,#00ff9c,#00f0ff,#00ff9c)!important;background-size:200% 100%!important;animation:shimmer 2s linear infinite!important}
+.progress-bar-wrap{background:#1a1f35!important;border-radius:99px!important;overflow:hidden!important}
 
-/* ── Progress bar ── */
-.progress-bar { background: #00ff9c !important; }
-.progress-bar-wrap { background: #1e293b !important; }
+/* ══ Section dividers ══ */
+.cw-section{border-top:1px solid #1a1f3580!important;margin:18px 0!important;padding-top:18px!important}
 
-/* ── Section dividers ── */
-.cw-section {
-    border-top: 1px solid #1e293b !important;
-    margin: 16px 0 !important;
-    padding-top: 16px !important;
-}
+/* ══ Particle canvas ══ */
+#cw-particles{position:fixed!important;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.6}
+.gradio-container{position:relative;z-index:1}
+
+/* ══ Mouse glow ══ */
+#cw-mouse-glow{position:fixed;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,#00ff9c08 0%,transparent 70%);pointer-events:none;z-index:0;transform:translate(-50%,-50%);transition:left 0.1s,top 0.1s;opacity:0}
 """
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1038,9 +796,14 @@ with gr.Blocks(title="CodeWhisperer", css=CSS, theme=gr.themes.Base(
     neutral_hue=gr.themes.colors.slate,
 )) as demo:
 
-    # ── Header ────────────────────────────────────────────────────────────────
+    # ── Header + JS Effects ─────────────────────────────────────────────────
     gr.HTML(f"""
+    <canvas id="cw-particles"></canvas>
+    <div id="cw-mouse-glow"></div>
     <div class="cw-header">
+        <div style="position:absolute;top:50%;left:50%;width:6px;height:6px;background:#00ff9c30;border-radius:50%;animation:breathe 4s ease-in-out infinite;pointer-events:none"></div>
+        <div style="position:absolute;top:20%;right:15%;width:4px;height:4px;background:#00f0ff20;border-radius:50%;animation:breathe 5s ease-in-out 1s infinite;pointer-events:none"></div>
+        <div style="position:absolute;bottom:30%;left:25%;width:3px;height:3px;background:#a855f720;border-radius:50%;animation:breathe 6s ease-in-out 2s infinite;pointer-events:none"></div>
         <div class="cw-logo">⚡ CodeWhisperer</div>
         <div class="cw-sub">AI codebase intelligence — ask anything, understand everything</div>
         <div>
@@ -1051,6 +814,50 @@ with gr.Blocks(title="CodeWhisperer", css=CSS, theme=gr.themes.Base(
             <span class="cw-pill">{DEVICE.upper()}</span>
         </div>
     </div>
+    <script>
+    (function(){{
+        // ── Particle System ──
+        const c=document.getElementById('cw-particles');
+        if(!c)return;
+        const ctx=c.getContext('2d');
+        let w,h;
+        function resize(){{w=c.width=window.innerWidth;h=c.height=window.innerHeight}}
+        resize();window.addEventListener('resize',resize);
+        const pts=[];
+        for(let i=0;i<60;i++)pts.push({{x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*0.4,vy:(Math.random()-0.5)*0.4,r:Math.random()*1.5+0.5}});
+        function draw(){{
+            ctx.clearRect(0,0,w,h);
+            for(let i=0;i<pts.length;i++){{
+                const p=pts[i];
+                p.x+=p.vx;p.y+=p.vy;
+                if(p.x<0||p.x>w)p.vx*=-1;
+                if(p.y<0||p.y>h)p.vy*=-1;
+                ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+                ctx.fillStyle='rgba(0,255,156,0.25)';ctx.fill();
+                for(let j=i+1;j<pts.length;j++){{
+                    const q=pts[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.sqrt(dx*dx+dy*dy);
+                    if(d<120){{
+                        ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
+                        ctx.strokeStyle='rgba(0,255,156,'+(0.08*(1-d/120))+')';
+                        ctx.lineWidth=0.5;ctx.stroke();
+                    }}
+                }}
+            }}
+            requestAnimationFrame(draw);
+        }}
+        draw();
+        // ── Mouse Glow ──
+        const glow=document.getElementById('cw-mouse-glow');
+        if(glow){{
+            document.addEventListener('mousemove',function(e){{
+                glow.style.left=e.clientX+'px';
+                glow.style.top=e.clientY+'px';
+                glow.style.opacity='1';
+            }});
+            document.addEventListener('mouseleave',function(){{glow.style.opacity='0'}});
+        }}
+    }})();
+    </script>
     """)
 
     status_bar = gr.Markdown(
@@ -1268,11 +1075,16 @@ with gr.Blocks(title="CodeWhisperer", css=CSS, theme=gr.themes.Base(
 
     # ── Footer ────────────────────────────────────────────────────────────────
     gr.HTML(f"""
-    <div style="text-align:center;padding:14px;border-top:1px solid #1e293b;
-                color:#1e293b;font-size:0.72rem;font-family:'JetBrains Mono',monospace;">
-        CodeWhisperer v3 &nbsp;·&nbsp; {DEVICE.upper()}
-        &nbsp;·&nbsp; llama-3.3-70b via Groq
-        &nbsp;·&nbsp; CodeBERT + cross-encoder reranking
+    <div style="text-align:center;padding:18px;border-top:1px solid #1a1f35;
+                background:linear-gradient(180deg,#050508,#0a0e1a);
+                color:#334155;font-size:0.72rem;font-family:'JetBrains Mono',monospace;
+                position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;
+                    background:linear-gradient(90deg,transparent,#00ff9c30,#00f0ff20,transparent);"></div>
+        CodeWhisperer v3
+        <span style="color:#00ff9c40;margin:0 6px">⬤</span> {DEVICE.upper()}
+        <span style="color:#00ff9c40;margin:0 6px">⬤</span> llama-3.3-70b via Groq
+        <span style="color:#00ff9c40;margin:0 6px">⬤</span> CodeBERT + cross-encoder reranking
     </div>
     """)
 
