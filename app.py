@@ -517,27 +517,83 @@ def explain_file(file_path_input):
         collected += chunk
         yield collected
 
+def auto_generate_eval_pairs():
+    """
+    Build ground-truth eval pairs from the actual loaded codebase.
+    Samples real functions/classes and generates sensible queries for them.
+    """
+    if get_collection().count() == 0:
+        return [["No codebase loaded — ingest a repo first", ""]] * 6
+
+    col    = get_collection()
+    total  = col.count()
+    sample = col.get(limit=min(total, 300))
+    metas  = sample["metadatas"]
+
+    # Prefer named functions and classes over generic blocks
+    named = [m for m in metas if m.get("kind") in (
+        "function", "class", "function_declaration", "function_definition",
+        "method_definition", "class_declaration", "class_definition")
+        and m.get("name") and m["name"] not in ("anonymous", "__init__")
+        and len(m.get("name", "")) > 2]
+
+    if not named:
+        named = [m for m in metas if m.get("file")]
+
+    # One entry per file for diversity
+    seen_files, picked = set(), []
+    for m in named:
+        f = m.get("file", "")
+        if f not in seen_files:
+            picked.append(m)
+            seen_files.add(f)
+        if len(picked) >= 8:
+            break
+    if len(picked) < 4:
+        picked = (named + metas)[:8]
+
+    def make_query(m):
+        name = m.get("name", "unknown")
+        kind = m.get("kind", "")
+        if "class" in kind.lower():
+            return f"What does the {name} class do?"
+        elif "function" in kind.lower() or kind == "function":
+            return f"What does the {name} function do and where is it defined?"
+        else:
+            return f"Where is {name} defined and what does it do?"
+
+    rows = [[make_query(m), Path(m.get("file", "")).stem] for m in picked[:8]]
+    while len(rows) < 6:
+        rows.append(["", ""])
+    return rows
+
+
 def run_eval(pairs_df):
     if get_collection().count() == 0:
         return "No codebase loaded yet."
-    rows    = pairs_df.values.tolist()
+    rows = pairs_df.values.tolist()
+    rows = [r for r in rows if len(r) >= 2 and str(r[0]).strip() and str(r[1]).strip()]
+
+    if not rows:
+        return "⚠️ No pairs to evaluate. Click **Auto-generate pairs** first, or add your own rows."
+
     correct = 0
-    lines   = ["| Query | Expected | Top Retrieved | Pass |",
-               "|-------|----------|---------------|------|"]
+    lines   = ["| Query | Expected file | Top retrieved | Pass |",
+               "|-------|--------------|---------------|------|"]
     for row in rows:
-        if len(row) < 2 or not row[0] or not row[1]: continue
-        query, expected = str(row[0]), str(row[1]).lower()
+        query, expected = str(row[0]).strip(), str(row[1]).strip().lower()
         _, metas = retrieve(query, n=6)
         top_file = metas[0]["file"] if metas else "—"
         passed   = "✅" if expected in top_file.lower() else "❌"
         if expected in top_file.lower(): correct += 1
         lines.append(f"| {query[:45]} | `{expected}` | `{top_file}` | {passed} |")
-    total = len([r for r in rows if len(r) >= 2 and r[0] and r[1]])
+
+    total = len(rows)
     pct   = 100 * correct // max(total, 1)
     lines.append(f"\n### Score: {correct}/{total} — **{pct}% file citation accuracy**")
     if pct >= 80:   lines.append("> 🟢 Good retrieval quality")
-    elif pct >= 60: lines.append("> 🟡 Moderate — consider larger chunk overlap")
-    else:           lines.append("> 🔴 Poor — check chunking and embedding model")
+    elif pct >= 60: lines.append("> 🟡 Moderate — try increasing chunk overlap")
+    else:           lines.append("> 🔴 Poor — check that the correct codebase is loaded")
     return "\n".join(lines)
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -917,23 +973,25 @@ with gr.Blocks(
 
         # ── EVAL ──────────────────────────────────────────────────────────────
         with gr.Tab("📊 Eval"):
-            gr.Markdown("**Benchmark retrieval accuracy.** Query → expected file pairs.")
+            gr.Markdown("""**Benchmark retrieval accuracy against the loaded codebase.**
+Click **Auto-generate pairs** to create test cases from your actual loaded repo,
+or manually edit the table. Then click **Run Benchmark**.""")
+
+            with gr.Row():
+                autogen_btn = gr.Button("⚡ Auto-generate pairs", variant="secondary")
+                eval_btn    = gr.Button("Run Benchmark", variant="primary")
+
             eval_pairs = gr.Dataframe(
-                headers=["Query", "Expected file (substring)"],
+                headers=["Query", "Expected file (stem)"],
                 datatype=["str", "str"],
-                row_count=6,
-                col_count=(2, "fixed"),          # ← correct param name
-                label="Ground-truth pairs",
-                value=[
-                    ["What does the Blueprint class do?",    "blueprints"],
-                    ["Where are routes defined?",            "routing"],
-                    ["How does the app context work?",       "ctx"],
-                    ["What does the Request class contain?", "wrappers"],
-                    ["Where is CLI handling?",               "cli"],
-                    ["How is templating handled?",           "templating"],
-                ])
-            eval_btn    = gr.Button("Run Benchmark", variant="primary")
+                row_count=8,
+                col_count=(2, "fixed"),
+                label="Ground-truth pairs — edit or auto-generate",
+                value=[["Load a codebase first, then click Auto-generate pairs", ""]] * 6
+            )
             eval_output = gr.Markdown()
+
+            autogen_btn.click(auto_generate_eval_pairs, outputs=eval_pairs)
             eval_btn.click(run_eval, inputs=eval_pairs, outputs=eval_output)
 
     # ── Footer ────────────────────────────────────────────────────────────────
